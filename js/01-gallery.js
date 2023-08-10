@@ -1,47 +1,47 @@
 import { galleryItems } from "./gallery-items.js";
-// Change code below this line
 
-console.log(galleryItems);
+const galleryContainer = document.querySelector(".gallery");
+const picturesMarkup = createPicturesMarkup(galleryItems);
 
-const ulGallery = document.querySelector(".gallery");
-const markup = createGalleryMarkup(galleryItems);
+galleryContainer.insertAdjacentHTML("beforeend", picturesMarkup);
+galleryContainer.addEventListener("click", onPictureClick);
 
-function createGalleryMarkup(items) {
+function createPicturesMarkup(items) {
   return items
-    .map(
-      (item) => `<li class="gallery__item>"
-   <a class="gallery__link" href="${item.original}">
+    .map(({ preview, original, description }) => {
+      return `<li class="gallery__item">
+    <a class="gallery__link" href="large-image.jpg">
     <img
       class="gallery__image"
-      src="${item.preview}"
-      data-source="${item.original}"
-      alt="${item.description}"
+      src="${preview}"
+      data-source="${original}"
+      alt="${description}"
     />
   </a>
-</li>`
-    )
+</li>`;
+    })
     .join("");
 }
 
-ulGallery.innerHTML = markup;
-
-ulGallery.addEventListener("click", imageClick);
-
-function imageClick(event) {
-  event.preventDefault();
-
-  if (event.target.nodeName !== "IMG") {
+function onPictureClick(evt) {
+  evt.preventDefault();
+  const isPicture = evt.target.classList.contains("gallery__image");
+  if (!isPicture) {
     return;
   }
 
-  const instance = basicLightbox.create(`<img src="${event.target.dataset.source}" width="800" height="600">`);
-  instance.show();
-  console.dir(instance);
+  const originalImg = evt.target.dataset.source;
+  modalInteraction(originalImg);
+}
 
-  window.addEventListener("keydown", function (event) {
-    const ESC_KEY_CODE = "Escape";
-    const visible = basicLightbox.visible();
-    if (event.code === ESC_KEY_CODE) {
+function modalInteraction(image) {
+  const instance = basicLightbox.create(
+    `<img src="${image}" width="800" height="600" />`
+  );
+  instance.show();
+
+  window.addEventListener("keydown", (evt) => {
+    if (evt.code === "Escape") {
       instance.close();
     }
   });
